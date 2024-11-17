@@ -17,7 +17,7 @@ vendor/
 # Go workspace and build artifacts
 *.log
 *.cache
-*.tmp
+tmp
 
 # IDE/editor-specific files
 .idea/
@@ -30,6 +30,3 @@ vendor/
 # Testing-related files
 *.test
 
-# Modules and dependency files
-/go.sum
-/go.mod # Optional, if you want to commit this file, remove this line.
