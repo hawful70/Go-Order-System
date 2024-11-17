@@ -1,0 +1,35 @@
+.env
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output of build tools
+bin/
+build/
+*.out
+
+# Dependency directories (if used with vendoring)
+vendor/
+
+# Go workspace and build artifacts
+*.log
+*.cache
+*.tmp
+
+# IDE/editor-specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+.DS_Store
+
+# Testing-related files
+*.test
+
+# Modules and dependency files
+/go.sum
+/go.mod # Optional, if you want to commit this file, remove this line.
