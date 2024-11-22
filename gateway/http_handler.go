@@ -26,11 +26,13 @@ func (h *handler) handleCreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := h.client.CreateOrder(r.Context(), &pb.CreateOrderRequest{
+	o, err := h.client.CreateOrder(r.Context(), &pb.CreateOrderRequest{
 		CustomerID: customerId,
 		Items:      items,
 	})
 	if err != nil {
 		return
 	}
+
+	common.WriteJSON(w, http.StatusOK, o)
 }
