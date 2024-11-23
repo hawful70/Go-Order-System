@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/hawful70/common"
+	"github.com/hawful70/common/broker"
 	"github.com/hawful70/common/discovery"
 	"github.com/hawful70/common/discovery/consul"
 	"google.golang.org/grpc"
@@ -53,6 +54,19 @@ func main() {
 		}
 	}(registry, ctx, instanceID, serviceName)
 
+	ch, close := broker.Connect(amqpUser, amqpPass, amqpHost, amqpPort)
+	defer func() {
+		err := close()
+		if err != nil {
+			return
+		}
+
+		err = ch.Close()
+		if err != nil {
+			return
+		}
+	}()
+
 	grpcServer := grpc.NewServer()
 	l, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
@@ -68,7 +82,7 @@ func main() {
 	store := NewStore()
 	svc := NewService(store)
 
-	NewGRPCHandler(grpcServer)
+	NewGRPCHandler(grpcServer, svc, ch)
 
 	svc.CreateOrder(context.Background())
 
