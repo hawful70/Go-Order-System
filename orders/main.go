@@ -84,7 +84,7 @@ func main() {
 
 	NewGRPCHandler(grpcServer, svc, ch)
 
-	svc.CreateOrder(context.Background())
+	//svc.CreateOrder(context.Background())
 
 	log.Printf("GRPC Server started at %v\n", grpcAddr)
 
