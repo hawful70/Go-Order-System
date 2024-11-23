@@ -1,37 +1,59 @@
 package main
 
 import (
+	"context"
 	"github.com/hawful70/common"
-	pb "github.com/hawful70/common/api"
+
+	"github.com/hawful70/common/discovery"
+	"github.com/hawful70/common/discovery/consul"
+	"github.com/hawful70/gateway/gateway"
 	_ "github.com/joho/godotenv/autoload"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+
 	"log"
 	"net/http"
+	"time"
 )
 
 var (
-	httpAddr         = common.EnvString("HTTP_ADDR", ":8080")
-	orderServiceAddr = common.EnvString("ORDER_SERVICE_ADDR", "localhost:2000")
+	serviceName = "gateway"
+	httpAddr    = common.EnvString("HTTP_ADDR", ":8080")
+	consulAddr  = common.EnvString("CONSUL_ADDR", "localhost:8500")
+	jaegerAddr  = common.EnvString("JAEGER_ADDR", "localhost:4318")
 )
 
 func main() {
-	conn, err := grpc.NewClient(orderServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	registry, err := consul.NewRegistry(consulAddr, serviceName)
 	if err != nil {
-		log.Fatalf("Failed to dial server: %v", err)
+		panic(err)
 	}
-	defer func(conn *grpc.ClientConn) {
-		err := conn.Close()
-		if err != nil {
-			log.Fatalf("Failed to close connection: %v", err)
-		}
-	}(conn)
 
-	log.Printf("Dialing  at %s", orderServiceAddr)
-	c := pb.NewOrderServiceClient(conn)
+	ctx := context.Background()
+	instanceID := discovery.GenerateInstanceID(serviceName)
+	if err := registry.Register(ctx, instanceID, serviceName, httpAddr); err != nil {
+		panic(err)
+	}
+
+	go func() {
+		for {
+			if err := registry.HealthCheck(instanceID, serviceName); err != nil {
+				log.Fatal("failed to health check")
+			}
+			time.Sleep(time.Second * 1)
+		}
+	}()
+
+	defer func(registry *consul.Registry, ctx context.Context, instanceID string, serviceName string) {
+		err := registry.Deregister(ctx, instanceID, serviceName)
+		if err != nil {
+			log.Fatal("failed to deregister service")
+		}
+	}(registry, ctx, instanceID, serviceName)
 
 	mux := http.NewServeMux()
-	handler := NewHandler(c)
+
+	orderGateway := gateway.NewGRPCGateway(registry)
+
+	handler := NewHandler(orderGateway)
 	handler.registerRoutes(mux)
 
 	log.Printf("Starting HTTP server at %s", httpAddr)
