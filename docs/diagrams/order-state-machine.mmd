@@ -1,3 +1,14 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#E0F2FE",
+    "primaryTextColor": "#0B1020",
+    "primaryBorderColor": "#0B1020",
+    "lineColor": "#0B1020",
+    "nodeBorder": "#0B1020"
+  },
+  "themeCSS": "svg{background:#ffffff}.edgePath path{stroke-width:3px!important}.stateGroup rect{stroke-width:2.5px!important}.stateLabel{font-weight:700}"
+} }%%
 stateDiagram-v2
   [*] --> PENDING
   PENDING --> VALIDATED: InventoryReserved
@@ -6,4 +17,3 @@ stateDiagram-v2
   VALIDATED --> CANCELLED: PaymentFailed
   PAID --> [*]
   CANCELLED --> [*]
-

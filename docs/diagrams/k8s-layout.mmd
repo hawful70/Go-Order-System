@@ -1,3 +1,14 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#E0F2FE",
+    "primaryTextColor": "#0B1020",
+    "primaryBorderColor": "#0B1020",
+    "lineColor": "#0B1020",
+    "nodeBorder": "#0B1020"
+  },
+  "themeCSS": "svg{background:#ffffff}.edgePath path{stroke-width:3px!important}.node rect,.node circle{stroke-width:2.5px!important}.cluster rect{stroke-width:2.5px!important}" 
+} }%%
 graph TB
   subgraph kind-cluster
     subgraph ns:oms-dev
@@ -18,4 +29,3 @@ graph TB
       PODORD --> STSDB
     end
   end
-
