@@ -1,3 +1,21 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#FDE68A",
+    "primaryTextColor": "#0B1020",
+    "primaryBorderColor": "#0B1020",
+    "lineColor": "#0B1020",
+    "actorBorder": "#0B1020",
+    "actorBkg": "#BFDBFE",
+    "actorTextColor": "#0B1020",
+    "signalColor": "#0B1020",
+    "sequenceNumberColor": "#0B1020",
+    "noteBkgColor": "#FEF3C7",
+    "noteTextColor": "#0B1020",
+    "noteBorderColor": "#F59E0B"
+  },
+  "themeCSS": ".actor rect{stroke-width:2.5px}.actor text{font-weight:700}.messageLine0,.messageLine1,.messageLine2,.messageLine3{stroke-width:2.5px}.sequenceNumber{fill:#0B1020;font-weight:700}.label, .loopText{font-weight:700}.note{stroke-width:2px}"
+} }%%
 sequenceDiagram
   autonumber
   participant Client
@@ -47,4 +65,3 @@ sequenceDiagram
       ORD->>K: OrderCancelled
     end
   end
-
