@@ -14,7 +14,7 @@ Each service owns its database. Cross‑service communication is event‑driven 
 
 ### Visual: System Context
 
-Rendered image: ![System Context](images/system-context.svg)
+![System Context](images/system-context.svg)
 
 ## Interaction Model
 
@@ -29,7 +29,7 @@ Rendered image: ![System Context](images/system-context.svg)
 
 ### Visual: Create Order Saga (Happy and Failure Paths)
 
-Rendered image: ![Create Order Saga](images/create-order-saga.svg)
+![Create Order Saga](images/create-order-saga.svg)
 
 ## Order State Machine (v1)
 
@@ -42,7 +42,7 @@ Optional later: PREPARING, COMPLETED (by Fulfillment).
 
 ### Visual: Order State Machine
 
-Rendered image: ![Order State Machine](images/order-state-machine.svg)
+![Order State Machine](images/order-state-machine.svg)
 
 ## Messaging
 
@@ -56,7 +56,7 @@ Rendered image: ![Order State Machine](images/order-state-machine.svg)
 
 ### Visual: Topics and Event Flow
 
-Rendered image: ![Topics and Event Flow](images/topics-flow.svg)
+![Topics and Event Flow](images/topics-flow.svg)
 
 ## Data Stores (initial)
 
@@ -80,4 +80,4 @@ Rendered image: ![Topics and Event Flow](images/topics-flow.svg)
 
 ### Visual: Kubernetes (dev) Layout
 
-Rendered image: ![Kubernetes Dev Layout](images/k8s-layout.svg)
+![Kubernetes Dev Layout](images/k8s-layout.svg)
