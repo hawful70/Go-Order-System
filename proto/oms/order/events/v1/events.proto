@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package oms.order.events.v1;
+
+option go_package = "github.com/hawful70/oms/contracts/oms/order/events/v1;ordereventsv1";
+
+import "oms/common/v1/common.proto";
+
+message OrderCreated {
+  oms.common.v1.Meta meta = 1;
+  string order_id = 2;
+  string customer_id = 3;
+  repeated oms.common.v1.ItemWithQuantity items = 4;
+}
+
+message OrderValidated {
+  oms.common.v1.Meta meta = 1;
+  string order_id = 2;
+}
+
+message OrderPaid {
+  oms.common.v1.Meta meta = 1;
+  string order_id = 2;
+  string payment_id = 3;
+}
+
+enum CancelReason {
+  CANCEL_REASON_UNSPECIFIED = 0;
+  CANCEL_REASON_INVENTORY_REJECTED = 1;
+  CANCEL_REASON_PAYMENT_FAILED = 2;
+}
+
+message OrderCancelled {
+  oms.common.v1.Meta meta = 1;
+  string order_id = 2;
+  CancelReason reason = 3;
+  string detail = 4; // optional human‑readable detail
+}
+

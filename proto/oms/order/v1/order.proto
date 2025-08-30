@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package oms.order.v1;
+
+option go_package = "github.com/hawful70/oms/contracts/oms/order/v1;orderv1";
+
+import "google/protobuf/timestamp.proto";
+import "oms/common/v1/common.proto";
+
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_PENDING = 1;
+  ORDER_STATUS_VALIDATED = 2;
+  ORDER_STATUS_PAID = 3;
+  ORDER_STATUS_CANCELLED = 4;
+}
+
+message Order {
+  string id = 1;
+  string customer_id = 2;
+  OrderStatus status = 3;
+  repeated oms.common.v1.Item items = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message CreateOrderRequest {
+  string customer_id = 1;
+  repeated oms.common.v1.ItemWithQuantity items = 2;
+  string idempotency_key = 3;
+}
+
+message GetOrderRequest {
+  string order_id = 1;
+  string customer_id = 2;
+}
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (Order);
+  rpc GetOrder(GetOrderRequest) returns (Order);
+}
+

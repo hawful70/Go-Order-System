@@ -1,10 +1,14 @@
-# Order Management System
+# OMS Monorepo (M0 - Foundations)
 
-This is a microservices-based Order Management System designed to streamline the ordering process. The system consists of four core services:
+This repository is reset to the learning-friendly M0 foundation for an event-driven Order Management System.
 
-- **Kitchen Service**: Manages meal preparation and kitchen workflows.  
-- **Order Service**: Handles customer orders, updates, and tracking.  
-- **Payment Service**: Processes payments and manages transaction records.  
-- **Stock Service**: Tracks inventory levels and ensures stock availability.
+- Start with design docs in `docs/`.
+- Contracts (Protobuf) live in `proto/`.
+- Code and deployments will be added in M1+ milestones.
 
-Each service is independently developed using **Golang**, making the system scalable, maintainable, and efficient.
+See:
+- docs/architecture.md
+- docs/event-catalog.md
+- docs/api.md
+
+Next step (M1): scaffold minimal Gateway + Orders with Docker Compose and wire Kafka locally.
