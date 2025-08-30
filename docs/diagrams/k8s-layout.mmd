@@ -1,0 +1,21 @@
+graph TB
+  subgraph kind-cluster
+    subgraph ns:oms-dev
+      IGW[Ingress] --> SVCGW[Service: gateway]
+      SVCGW --> PODGW[(Deployment: gateway pods)]
+
+      SVCORD[Service: orders] --> PODORD[(Deployment: orders pods)]
+      STSDB[StatefulSet: postgres] --- PVCDB[(PVC)]
+
+      subgraph Strimzi
+        OP[Operator]
+        BRK[(Kafka broker)]
+      end
+
+      %% Networking
+      PODGW -->|gRPC| SVCORD
+      PODORD <-->|produce/consume| BRK
+      PODORD --> STSDB
+    end
+  end
+

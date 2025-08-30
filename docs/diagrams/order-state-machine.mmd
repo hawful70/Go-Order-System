@@ -1,0 +1,9 @@
+stateDiagram-v2
+  [*] --> PENDING
+  PENDING --> VALIDATED: InventoryReserved
+  PENDING --> CANCELLED: InventoryRejected
+  VALIDATED --> PAID: PaymentAuthorized
+  VALIDATED --> CANCELLED: PaymentFailed
+  PAID --> [*]
+  CANCELLED --> [*]
+

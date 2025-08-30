@@ -51,6 +51,8 @@ graph LR
   FUL --- FULDB
 ```
 
+Rendered image: ![System Context](images/system-context.svg)
+
 ## Interaction Model
 
 - External client → Gateway (HTTP):
@@ -116,6 +118,8 @@ sequenceDiagram
   end
 ```
 
+Rendered image: ![Create Order Saga](images/create-order-saga.svg)
+
 ## Order State Machine (v1)
 
 - PENDING: Created by Orders when a request arrives. Emits OrderCreated.
@@ -137,6 +141,8 @@ stateDiagram-v2
   PAID --> [*]
   CANCELLED --> [*]
 ```
+
+Rendered image: ![Order State Machine](images/order-state-machine.svg)
 
 ## Messaging
 
@@ -166,6 +172,8 @@ graph LR
 
   classDef topic fill:#eef,stroke:#88a,stroke-width:1px;
 ```
+
+Rendered image: ![Topics and Event Flow](images/topics-flow.svg)
 
 ## Data Stores (initial)
 
@@ -211,3 +219,5 @@ graph TB
     end
   end
 ```
+
+Rendered image: ![Kubernetes Dev Layout](images/k8s-layout.svg)

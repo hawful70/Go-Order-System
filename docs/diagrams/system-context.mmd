@@ -1,0 +1,37 @@
+graph LR
+  %% Clients and Gateway
+  C[Client Apps] -->|HTTP| GW[Gateway]
+
+  %% Synchronous path
+  GW -->|gRPC| ORD[Orders]
+
+  %% Kafka bus
+  K[(Kafka)]
+
+  %% Services
+  INV[Inventory]
+  PAY[Payments]
+  FUL[Fulfillment]
+
+  %% Datastores
+  ORDDB[(Postgres-Orders)]
+  INVDB[(Postgres-Inventory)]
+  PAYDB[(Postgres-Payments)]
+  FULDB[(Fulfillment-DB)]
+
+  %% Topics (labels on edges)
+  ORD -->|publish oms.order.v1| K
+  K -->|consume oms.order.v1| INV
+  K -->|consume oms.order.v1| PAY
+
+  INV -->|publish oms.inventory.v1| K
+  PAY -->|publish oms.payment.v1| K
+  K -->|consume oms.inventory.v1| ORD
+  K -->|consume oms.payment.v1| ORD
+  K -->|consume oms.order.v1 paid| FUL
+
+  %% DB ownership
+  ORD --- ORDDB
+  INV --- INVDB
+  PAY --- PAYDB
+  FUL --- FULDB

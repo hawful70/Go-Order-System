@@ -1,0 +1,50 @@
+sequenceDiagram
+  autonumber
+  participant Client
+  participant GW as Gateway
+  participant ORD as Orders
+  participant DB as Orders DB
+  participant K as Kafka
+  participant INV as Inventory
+  participant PAY as Payments
+
+  Client->>GW: POST /orders (items, Idempotency-Key)
+  GW->>ORD: CreateOrder(customerId, items)
+  ORD->>DB: Insert order (PENDING)
+  DB-->>ORD: ok (orderId)
+  ORD->>K: publish OrderCreated (oms.order.v1)
+  ORD-->>GW: 201 {orderId}
+  GW-->>Client: 201 {orderId}
+
+  par Inventory path
+    K-->>INV: OrderCreated
+    INV->>INV: Reserve stock
+    alt Reservation OK
+      INV->>K: InventoryReserved (oms.inventory.v1)
+    else Out of stock
+      INV->>K: InventoryRejected (oms.inventory.v1)
+    end
+  and Orders reacts
+    K-->>ORD: InventoryReserved | InventoryRejected
+    alt Reserved
+      ORD->>DB: Update status VALIDATED
+      ORD->>K: OrderValidated
+      K-->>PAY: OrderValidated
+      PAY->>PAY: Authorize payment
+      alt Payment OK
+        PAY->>K: PaymentAuthorized (oms.payment.v1)
+        K-->>ORD: PaymentAuthorized
+        ORD->>DB: Update status PAID
+        ORD->>K: OrderPaid
+      else Payment Failed
+        PAY->>K: PaymentFailed (oms.payment.v1)
+        K-->>ORD: PaymentFailed
+        ORD->>DB: Update status CANCELLED
+        ORD->>K: OrderCancelled
+      end
+    else Rejected
+      ORD->>DB: Update status CANCELLED
+      ORD->>K: OrderCancelled
+    end
+  end
+
