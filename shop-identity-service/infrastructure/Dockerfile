@@ -14,6 +14,6 @@ WORKDIR /app
 COPY --from=builder /app/identity-service /usr/local/bin/identity-service
 COPY --from=builder /app/.env /app/.env
 
-EXPOSE 8081
+EXPOSE 8081 9091
 
 ENTRYPOINT ["/usr/local/bin/identity-service"]

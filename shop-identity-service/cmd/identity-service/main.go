@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -18,6 +20,8 @@ import (
 	"github.com/hawful70/shop-identity-service/internal/identity"
 	"github.com/hawful70/shop-identity-service/internal/identity/domain"
 	"github.com/hawful70/shop-identity-service/internal/identity/repository"
+	identitygrpc "github.com/hawful70/shop-identity-service/internal/identity/transport/grpc"
+	pb "github.com/hawful70/shop-identity-service/internal/identity/transport/grpc/pb"
 	identityhttp "github.com/hawful70/shop-identity-service/internal/identity/transport/http"
 )
 
@@ -53,9 +57,25 @@ func main() {
 
 	srv := httpserver.New(":"+cfg.HTTPPort, r)
 
+	grpcServer := grpc.NewServer()
+	pb.RegisterIdentityServiceServer(grpcServer, identitygrpc.NewServer(svc))
+
+	grpcListener, err := net.Listen("tcp", ":"+cfg.GRPCPort)
+	if err != nil {
+		log.Fatalf("failed to listen on gRPC port %s: %v", cfg.GRPCPort, err)
+	}
+	defer grpcListener.Close()
+
 	go func() {
 		if err := srv.Start(); err != nil && err.Error() != "http: Server closed" {
 			log.Fatalf("server error: %v", err)
+		}
+	}()
+
+	go func() {
+		log.Printf("gRPC server listening on :%s\n", cfg.GRPCPort)
+		if err := grpcServer.Serve(grpcListener); err != nil {
+			log.Fatalf("grpc server error: %v", err)
 		}
 	}()
 
@@ -70,5 +90,6 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Printf("failed to shutdown server: %v", err)
 	}
+	grpcServer.GracefulStop()
 	log.Println("identity service stopped gracefully")
 }

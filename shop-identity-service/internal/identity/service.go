@@ -12,11 +12,14 @@ var (
 	ErrEmailTaken      = errors.New("email is already registered")
 	ErrInvalidLogin    = errors.New("invalid email or password")
 	ErrPasswordTooWeak = errors.New("password must be at least 8 characters")
+	ErrInvalidToken    = errors.New("invalid token")
 )
 
 type Service interface {
 	Register(ctx context.Context, email, username, password string) (User, error)
 	Login(ctx context.Context, email, password string) (User, string, error)
+	GetUserByID(ctx context.Context, id UserID) (User, error)
+	ValidateToken(ctx context.Context, token string) (User, Claims, error)
 }
 
 type service struct {
@@ -82,4 +85,25 @@ func (s *service) Login(ctx context.Context, email, password string) (User, stri
 	}
 
 	return user, token, nil
+}
+
+func (s *service) GetUserByID(ctx context.Context, id UserID) (User, error) {
+	return s.repo.GetUserByID(ctx, id)
+}
+
+func (s *service) ValidateToken(ctx context.Context, token string) (User, Claims, error) {
+	claims, err := s.jwtManager.VerifyToken(token)
+	if err != nil {
+		return User{}, Claims{}, ErrInvalidToken
+	}
+
+	user, err := s.repo.GetUserByID(ctx, UserID(claims.UserID))
+	if err != nil {
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return User{}, claims, ErrInvalidToken
+		}
+		return User{}, claims, err
+	}
+
+	return user, claims, nil
 }

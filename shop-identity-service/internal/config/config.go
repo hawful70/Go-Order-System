@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	HTTPPort     string
+	GRPCPort     string
 	JWTSecret    string
 	JWTIssuer    string
 	JWTExpiresIn time.Duration
@@ -19,9 +20,14 @@ type Config struct {
 func Load() Config {
 	_ = godotenv.Load()
 
-	port := os.Getenv("HTTP_PORT")
-	if port == "" {
-		port = "8081" // identity service default
+	httpPort := os.Getenv("HTTP_PORT")
+	if httpPort == "" {
+		httpPort = "8081" // identity service default
+	}
+
+	grpcPort := os.Getenv("GRPC_PORT")
+	if grpcPort == "" {
+		grpcPort = "9091"
 	}
 
 	secret := os.Getenv("JWT_SECRET")
@@ -51,7 +57,8 @@ func Load() Config {
 	}
 
 	return Config{
-		HTTPPort:     port,
+		HTTPPort:     httpPort,
+		GRPCPort:     grpcPort,
 		JWTSecret:    secret,
 		JWTIssuer:    issuer,
 		JWTExpiresIn: exp,

@@ -40,6 +40,7 @@ services:
       DB_DSN: "postgres://postgres:postgres@postgres:5432/identity?sslmode=disable"
     ports:
       - "8081:8081"
+      - "9091:9091"
     depends_on:
       postgres:
         condition: service_healthy
