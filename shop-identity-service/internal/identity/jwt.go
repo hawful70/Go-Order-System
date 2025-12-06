@@ -1,6 +1,7 @@
 package identity
 
 import (
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -43,4 +44,21 @@ func (m *JWTManager) GenerateToken(u User) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(m.secret)
+}
+
+func (m *JWTManager) VerifyToken(tokenStr string) (Claims, error) {
+	var claims Claims
+	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return m.secret, nil
+	}, jwt.WithIssuer(m.issuer))
+	if err != nil {
+		return Claims{}, err
+	}
+	if !token.Valid {
+		return Claims{}, errors.New("invalid token")
+	}
+	return claims, nil
 }

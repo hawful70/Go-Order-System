@@ -36,7 +36,7 @@ func main() {
 	jwtManager := identity.NewJWTManager(cfg.JWTSecret, cfg.JWTIssuer, cfg.JWTExpiresIn)
 	repo := repository.NewPostgresRepository(db)
 	svc := identity.NewService(repo, jwtManager)
-	h := identityhttp.NewHandler(svc)
+	h := identityhttp.NewHandler(svc, jwtManager)
 
 	r := chi.NewRouter()
 
