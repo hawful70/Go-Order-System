@@ -13,6 +13,7 @@ type Config struct {
 	JWTSecret    string
 	JWTIssuer    string
 	JWTExpiresIn time.Duration
+	DBDSN        string
 }
 
 func Load() Config {
@@ -44,11 +45,17 @@ func Load() Config {
 		exp = 15 * time.Minute
 	}
 
+	dbDSN := os.Getenv("DB_DSN")
+	if dbDSN == "" {
+		dbDSN = "postgres://postgres:postgres@localhost:5432/identity?sslmode=disable"
+	}
+
 	return Config{
 		HTTPPort:     port,
 		JWTSecret:    secret,
 		JWTIssuer:    issuer,
 		JWTExpiresIn: exp,
+		DBDSN:        dbDSN,
 	}
 }
 

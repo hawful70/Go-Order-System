@@ -6,52 +6,35 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 
 	"github.com/hawful70/shop-identity-service/internal/config"
 	"github.com/hawful70/shop-identity-service/internal/httpserver"
 	"github.com/hawful70/shop-identity-service/internal/identity"
+	"github.com/hawful70/shop-identity-service/internal/identity/domain"
+	"github.com/hawful70/shop-identity-service/internal/identity/repository"
 	identityhttp "github.com/hawful70/shop-identity-service/internal/identity/transport/http"
 )
-
-// simple in-memory repository for now
-type inMemoryRepo struct {
-	mu    sync.RWMutex
-	users map[string]identity.User // key: email
-}
-
-func newInMemoryRepo() identity.Repository {
-	return &inMemoryRepo{
-		users: make(map[string]identity.User),
-	}
-}
-
-func (r *inMemoryRepo) CreateUser(ctx context.Context, u identity.User) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.users[u.Email] = u
-	return nil
-}
-
-func (r *inMemoryRepo) GetUserByEmail(ctx context.Context, email string) (identity.User, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	u, ok := r.users[email]
-	if !ok {
-		return identity.User{}, identity.ErrInvalidLogin // reuse login-style error
-	}
-	return u, nil
-}
 
 func main() {
 	cfg := config.MustLoad()
 
+	db, err := gorm.Open(postgres.Open(cfg.DBDSN), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
+
+	if err := db.AutoMigrate(&domain.UserModel{}); err != nil {
+		log.Fatalf("failed to migrate database: %v", err)
+	}
+
 	jwtManager := identity.NewJWTManager(cfg.JWTSecret, cfg.JWTIssuer, cfg.JWTExpiresIn)
-	repo := newInMemoryRepo()
+	repo := repository.NewPostgresRepository(db)
 	svc := identity.NewService(repo, jwtManager)
 	h := identityhttp.NewHandler(svc)
 

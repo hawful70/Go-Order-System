@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"strings"
+
+	"github.com/hawful70/shop-identity-service/internal/identity/repository"
 )
 
 var (
@@ -18,11 +20,11 @@ type Service interface {
 }
 
 type service struct {
-	repo       Repository
+	repo       repository.Repository
 	jwtManager *JWTManager
 }
 
-func NewService(repo Repository, jwtManager *JWTManager) Service {
+func NewService(repo repository.Repository, jwtManager *JWTManager) Service {
 	return &service{repo: repo, jwtManager: jwtManager}
 }
 
@@ -36,8 +38,10 @@ func (s *service) Register(ctx context.Context, email, username, password string
 
 	_, err := s.repo.GetUserByEmail(ctx, email)
 	if err == nil {
-		// user exists
 		return User{}, ErrEmailTaken
+	}
+	if !errors.Is(err, repository.ErrUserNotFound) {
+		return User{}, err
 	}
 
 	hashed, err := HashPassword(password)
@@ -62,7 +66,10 @@ func (s *service) Login(ctx context.Context, email, password string) (User, stri
 
 	user, err := s.repo.GetUserByEmail(ctx, email)
 	if err != nil {
-		return User{}, "", ErrInvalidLogin
+		if errors.Is(err, repository.ErrUserNotFound) {
+			return User{}, "", ErrInvalidLogin
+		}
+		return User{}, "", err
 	}
 
 	if !CheckPassword(user.Password, password) {
