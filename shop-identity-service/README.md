@@ -187,11 +187,11 @@ docker compose up --build
 
 ### Services Available Locally
 
-  Service         Address
-  --------------- -----------------------
-  Identity HTTP   http://localhost:8081
-  Identity gRPC   localhost:9091
-  PostgreSQL      localhost:5432
+| Service       | Address               |
+| ------------- | --------------------- |
+| Identity HTTP | http://localhost:8081 |
+| Identity gRPC | localhost:9091        |
+| PostgreSQL    | localhost:5432        |
 
 ------------------------------------------------------------------------
 
