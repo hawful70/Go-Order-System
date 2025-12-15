@@ -8,8 +8,8 @@ import (
 
 	"github.com/segmentio/kafka-go"
 
+	"github.com/hawful70/platform-events/pkg/events"
 	"github.com/hawful70/shop-identity-service/internal/identity"
-	pkgevents "github.com/hawful70/shop-identity-service/pkg/events"
 )
 
 type KafkaNotifier struct {
@@ -35,7 +35,7 @@ func (n *KafkaNotifier) Close() error {
 }
 
 func (n *KafkaNotifier) UserCreated(ctx context.Context, user identity.User) error {
-	evt := pkgevents.NewUserCreated(string(user.ID), user.Email, user.Username)
+	evt := events.NewUserCreated(string(user.ID), user.Email, user.Username)
 	payload, err := json.Marshal(evt)
 	if err != nil {
 		return err

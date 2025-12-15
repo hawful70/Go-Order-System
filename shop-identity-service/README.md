@@ -163,7 +163,7 @@ Used internally by: - API Gateway - Product Service - Inventory Service
 -   A new `shop-email-service` (see `../shop-email-service`) consumes the
     topic and sends a welcome email (currently logged to stdout via a
     pluggable `Mailer` interface).
--   The event payload is defined in `pkg/events/` so additional services
+-   The event payload is defined in `../platform-events/pkg/events/` so additional services
     can reuse the same contract.
 
 Run the email service locally:

@@ -19,8 +19,8 @@ services:
 
   identity-service:
     build:
-      context: ..
-      dockerfile: infrastructure/Dockerfile
+      context: ../..
+      dockerfile: shop-identity-service/infrastructure/Dockerfile
     container_name: identity_service
     env_file:
       - ../.env
