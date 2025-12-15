@@ -17,18 +17,6 @@ services:
       timeout: 5s
       retries: 5
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: identity_pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "5050:80"
-    depends_on:
-      postgres:
-        condition: service_healthy
-
   identity-service:
     build:
       context: ..
@@ -36,14 +24,19 @@ services:
     container_name: identity_service
     env_file:
       - ../.env
-    environment:
-      DB_DSN: "postgres://postgres:postgres@postgres:5432/identity?sslmode=disable"
     ports:
       - "8081:8081"
       - "9091:9091"
+    networks:
+      - default
+      - shop-platform-net
     depends_on:
       postgres:
         condition: service_healthy
 
 volumes:
   postgres_data:
+
+networks:
+  shop-platform-net:
+    external: true

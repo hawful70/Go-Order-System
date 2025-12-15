@@ -1,4 +1,4 @@
-COMPOSE := docker compose -f infrastructure/docker-compose.yml
+COMPOSE := docker compose -f infrastructure/docker-compose.dev.yml
 GOCACHE_DIR := $(PWD)/.cache/go
 PSQL := $(COMPOSE) exec -T postgres env PGPASSWORD=postgres psql -U postgres -d identity
 

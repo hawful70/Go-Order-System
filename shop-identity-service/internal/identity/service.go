@@ -3,6 +3,7 @@ package identity
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/hawful70/shop-identity-service/internal/identity/repository"
@@ -25,10 +26,14 @@ type Service interface {
 type service struct {
 	repo       repository.Repository
 	jwtManager *JWTManager
+	notifier   UserNotifier
 }
 
-func NewService(repo repository.Repository, jwtManager *JWTManager) Service {
-	return &service{repo: repo, jwtManager: jwtManager}
+func NewService(repo repository.Repository, jwtManager *JWTManager, notifier UserNotifier) Service {
+	if notifier == nil {
+		notifier = NoopNotifier()
+	}
+	return &service{repo: repo, jwtManager: jwtManager, notifier: notifier}
 }
 
 func (s *service) Register(ctx context.Context, email, username, password string) (User, error) {
@@ -58,6 +63,11 @@ func (s *service) Register(ctx context.Context, email, username, password string
 	}
 
 	if err := s.repo.CreateUser(ctx, user); err != nil {
+		return User{}, err
+	}
+
+	if err := s.notifier.UserCreated(ctx, user); err != nil {
+		fmt.Println("err", err)
 		return User{}, err
 	}
 

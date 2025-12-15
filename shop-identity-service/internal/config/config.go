@@ -3,18 +3,21 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	HTTPPort     string
-	GRPCPort     string
-	JWTSecret    string
-	JWTIssuer    string
-	JWTExpiresIn time.Duration
-	DBDSN        string
+	HTTPPort              string
+	GRPCPort              string
+	JWTSecret             string
+	JWTIssuer             string
+	JWTExpiresIn          time.Duration
+	DBDSN                 string
+	KafkaBrokers          []string
+	KafkaUserCreatedTopic string
 }
 
 func Load() Config {
@@ -56,13 +59,32 @@ func Load() Config {
 		dbDSN = "postgres://postgres:postgres@localhost:5432/identity?sslmode=disable"
 	}
 
+	kafkaBrokersEnv := os.Getenv("KAFKA_BROKERS")
+	if kafkaBrokersEnv == "" {
+		kafkaBrokersEnv = "localhost:19092"
+	}
+	var kafkaBrokers []string
+	for _, broker := range strings.Split(kafkaBrokersEnv, ",") {
+		broker = strings.TrimSpace(broker)
+		if broker != "" {
+			kafkaBrokers = append(kafkaBrokers, broker)
+		}
+	}
+
+	kafkaUserCreatedTopic := os.Getenv("KAFKA_TOPIC_USER_CREATED")
+	if kafkaUserCreatedTopic == "" {
+		kafkaUserCreatedTopic = "user_created"
+	}
+
 	return Config{
-		HTTPPort:     httpPort,
-		GRPCPort:     grpcPort,
-		JWTSecret:    secret,
-		JWTIssuer:    issuer,
-		JWTExpiresIn: exp,
-		DBDSN:        dbDSN,
+		HTTPPort:              httpPort,
+		GRPCPort:              grpcPort,
+		JWTSecret:             secret,
+		JWTIssuer:             issuer,
+		JWTExpiresIn:          exp,
+		DBDSN:                 dbDSN,
+		KafkaBrokers:          kafkaBrokers,
+		KafkaUserCreatedTopic: kafkaUserCreatedTopic,
 	}
 }
 

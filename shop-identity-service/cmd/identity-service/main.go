@@ -19,6 +19,7 @@ import (
 	"github.com/hawful70/shop-identity-service/internal/httpserver"
 	"github.com/hawful70/shop-identity-service/internal/identity"
 	"github.com/hawful70/shop-identity-service/internal/identity/domain"
+	"github.com/hawful70/shop-identity-service/internal/identity/events"
 	"github.com/hawful70/shop-identity-service/internal/identity/repository"
 	identitygrpc "github.com/hawful70/shop-identity-service/internal/identity/transport/grpc"
 	pb "github.com/hawful70/shop-identity-service/internal/identity/transport/grpc/pb"
@@ -39,7 +40,20 @@ func main() {
 
 	jwtManager := identity.NewJWTManager(cfg.JWTSecret, cfg.JWTIssuer, cfg.JWTExpiresIn)
 	repo := repository.NewPostgresRepository(db)
-	svc := identity.NewService(repo, jwtManager)
+	var notifier identity.UserNotifier = identity.NoopNotifier()
+	if len(cfg.KafkaBrokers) > 0 {
+		kafkaNotifier := events.NewKafkaNotifier(cfg.KafkaBrokers, cfg.KafkaUserCreatedTopic)
+		notifier = kafkaNotifier
+		defer func() {
+			if err := kafkaNotifier.Close(); err != nil {
+				log.Printf("failed to close kafka notifier: %v", err)
+			}
+		}()
+	} else {
+		log.Println("kafka brokers not configured; user_created events disabled")
+	}
+
+	svc := identity.NewService(repo, jwtManager, notifier)
 	h := identityhttp.NewHandler(svc, jwtManager)
 
 	r := chi.NewRouter()

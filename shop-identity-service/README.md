@@ -156,6 +156,26 @@ Used internally by: - API Gateway - Product Service - Inventory Service
 
 ------------------------------------------------------------------------
 
+## ✅ Event-Driven Welcome Emails
+
+-   After every successful registration, the identity service publishes a
+    `user_created` event to Kafka via the REST Proxy.
+-   A new `shop-email-service` (see `../shop-email-service`) consumes the
+    topic and sends a welcome email (currently logged to stdout via a
+    pluggable `Mailer` interface).
+-   The event payload is defined in `pkg/events/` so additional services
+    can reuse the same contract.
+
+Run the email service locally:
+
+``` bash
+cd ../shop-email-service
+cp .env.example .env
+make run
+```
+
+------------------------------------------------------------------------
+
 ## ✅ Environment Configuration
 
 Create `.env` from `.env.example`:
@@ -169,6 +189,8 @@ JWT_ISSUER=identity-service
 JWT_EXPIRES_IN=15m
 
 DB_DSN=postgres://postgres:postgres@localhost:5432/identity?sslmode=disable
+KAFKA_REST_URL=http://localhost:8082
+KAFKA_TOPIC_USER_CREATED=user_created
 ```
 
 ------------------------------------------------------------------------
@@ -187,11 +209,13 @@ docker compose up --build
 
 ### Services Available Locally
 
-| Service       | Address               |
-| ------------- | --------------------- |
-| Identity HTTP | http://localhost:8081 |
-| Identity gRPC | localhost:9091        |
-| PostgreSQL    | localhost:5432        |
+| Service             | Address               |
+| ------------------- | --------------------- |
+| Identity HTTP       | http://localhost:8081 |
+| Identity gRPC       | localhost:9091        |
+| PostgreSQL          | localhost:5432        |
+| Kafka REST Proxy    | http://localhost:8082 |
+| Kafka Broker        | localhost:19092       |
 
 ------------------------------------------------------------------------
 
