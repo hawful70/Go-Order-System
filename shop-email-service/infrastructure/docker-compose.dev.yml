@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  email-service:
+    build:
+      context: ../..
+      dockerfile: shop-email-service/infrastructure/Dockerfile
+    container_name: email_service
+    env_file:
+      - ../.env
+    networks:
+      - shop-platform-net
+
+networks:
+  shop-platform-net:
+    external: true
